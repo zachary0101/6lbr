@@ -27,4 +27,4 @@ is a CoAP server example, which is used on stm32-mote hardware for a test.
 
 Now it can perform the basic router function.
 
-The code is really rough, hope it hsa some reference value for you!
+The code is really rough, hope it has some reference value for you!
