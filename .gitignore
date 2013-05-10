@@ -1,3 +1,5 @@
+.project
+.cproject
 *.a
 *.bin
 *.map
@@ -8,6 +10,8 @@
 *.ihex
 *.pyc
 *.redbee-econotag
+*.stm32-gateway
+*.stm32-mote
 *.econotag 
 *.native
 *.z1

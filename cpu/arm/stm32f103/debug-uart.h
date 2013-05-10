@@ -6,14 +6,12 @@
 #endif
 
 void
-dbg_setup_uart();
+dbg_setup_uart(void);
 
 void
 dbg_set_input_handler(void (*handler)(const char *inp, unsigned int len));
-
 unsigned int
 dbg_send_bytes(const unsigned char *seq, unsigned int len);
-
 
 void
 dbg_putchar(const char ch);
@@ -22,6 +20,7 @@ void
 dbg_blocking_putchar(const char ch);
 
 void
-dbg_drain();
-
+dbg_drain(void);
+int uart_putchar(char c);
+int uart_getchar(char *c);
 #endif /* __DEBUG_UART_H__1V2039076V__ */

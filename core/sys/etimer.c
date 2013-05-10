@@ -183,7 +183,7 @@ etimer_set(struct etimer *et, clock_time_t interval)
 void
 etimer_reset(struct etimer *et)
 {
-  timer_reset(&et->timer);
+  contiki_timer_reset(&et->timer);
   add_timer(et);
 }
 /*---------------------------------------------------------------------------*/

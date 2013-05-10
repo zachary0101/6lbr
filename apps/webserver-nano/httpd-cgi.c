@@ -1362,7 +1362,7 @@ static uint16_t c0=0x3ff,c1=0x3ff,c2=0x3ff,c3=0x3ff,c4=0x3ff,c5=0x3ff,c6=0x3ff,c
     PSOCK_WAIT_UNTIL(&s->sout, timer_expired(&t));
 #else
     PSOCK_WAIT_UNTIL(&s->sout, timer_expired(&t));
-    timer_reset(&t);
+    contiki_timer_reset(&t);
 #endif
 }
   PSOCK_END(&s->sout);

@@ -135,7 +135,7 @@ appcall(void *state)
 	  return;
 	}
       }
-      timer_reset(&s->timer);
+      contiki_timer_reset(&s->timer);
       handle_connection(s);
     } else {
       uip_abort();

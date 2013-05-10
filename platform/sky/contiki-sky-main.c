@@ -459,7 +459,7 @@ main(int argc, char **argv)
       /* before going down to sleep possibly do some management */
       if(timer_expired(&mgt_timer)) {
         watchdog_periodic();
-	timer_reset(&mgt_timer);
+	contiki_timer_reset(&mgt_timer);
 	msp430_sync_dco();
 #if CC2420_CONF_SFD_TIMESTAMPS
         cc2420_arch_sfd_init();

@@ -1439,7 +1439,7 @@ PROCESS_THREAD(ctk_process, ev, data)
     
 #if CTK_CONF_SCREENSAVER
     if(timer_expired(&timer)) {
-      timer_reset(&timer);
+      contiki_timer_reset(&timer);
       handle_timer();
     }
 #endif /* CTK_CONF_SCREENSAVER */

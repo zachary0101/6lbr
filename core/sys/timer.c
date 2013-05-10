@@ -81,7 +81,7 @@ timer_set(struct timer *t, clock_time_t interval)
  * \sa timer_restart()
  */
 void
-timer_reset(struct timer *t)
+contiki_timer_reset(struct timer *t)
 {
   t->start += t->interval;
 }
@@ -94,11 +94,11 @@ timer_reset(struct timer *t)
  * current time.
  *
  * \note A periodic timer will drift if this function is used to reset
- * it. For preioric timers, use the timer_reset() function instead.
+ * it. For preioric timers, use the contiki_timer_reset() function instead.
  *
  * \param t A pointer to the timer.
  *
- * \sa timer_reset()
+ * \sa contiki_timer_reset()
  */
 void
 timer_restart(struct timer *t)

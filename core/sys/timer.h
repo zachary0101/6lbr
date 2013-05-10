@@ -89,7 +89,7 @@ struct timer {
 };
 
 void timer_set(struct timer *t, clock_time_t interval);
-void timer_reset(struct timer *t);
+void contiki_timer_reset(struct timer *t);	//timer_reset() conflict with the same name function in libopencm3
 void timer_restart(struct timer *t);
 int timer_expired(struct timer *t);
 clock_time_t timer_remaining(struct timer *t);

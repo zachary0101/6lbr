@@ -1,20 +1,30 @@
 6LBR is a 6LoWPAN Border Router based on The Contiki Operating System.
 
-This 6LBR repository is a fork of Contiki with additions:
+This repository ports cetic/6lbr onto stm32f103 platform.
+The hardware uses stm32f103ret6 as the core control unit.
+Ethernet part uses enc28j60, and radio part uses at86rf231.
 
-* The Border Router: in examples/6lbr
-* A modified sky-websense: in examples/6lbr-demo
-* Modifications in core/net related to 6LBR
-* Platform definitions for the Nooliberry in platform/nooliberry
+The modification mainly include three part:
 
-This repository is continuously updated with new commits in Contiki. The master 
-branch will never be more than a few commits behind the master Contiki. 
-To track changes, see the 6lbr branch of our main Contiki fork on GitHub.
-Likewise, useful commits for Contiki are submitted back into the official
-Contiki repository through pull requests.
+First, cpu/arm/stm32f103/.
 
-* Home: http://cetic.github.com/6lbr
-* Documentation: http://github.com/cetic/6lbr/wiki
-* Contiki: http://www.contiki-os.org
-* Nooliberry: https://github.com/Noolitic/Nooliberry/wiki
-* Contiki fork with a 6lbr branch: http://github.com/cetic/contiki
+This project uses libopencm3 as the firmware library for stm32.
+So I modify the cpu related code with libopencm3.
+NOTE: libopencm3 has a function called timer_reset(), it conflicts with
+ the same name function in contiki sys/timer.c, so I change all of the 
+ timer_reset() in contiki into contiki_timer_reset().
+
+Second, platform/stm32-gateway/.
+This is the platform code for my gateway hardware. another folder called 
+stm32-mote is the leaf node, which is used together with examples/er-rest-example 
+to test the function of the gateway. The two hardware is compatible except that 
+the gateway has enc28j60 but the mote doesn't.
+
+Third, examples/6lbr-router/.
+This is the main code for 6lbr. 6lbr has three modes but I only use the router mode.
+You can easily change the code into the other two modes. And examples/er-rest-example
+is a CoAP server example, which is used on stm32-mote hardware for a test.
+
+Now it can perform the basic router function.
+
+The code is really rough, hope it hsa some reference value for you!
