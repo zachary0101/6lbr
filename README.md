@@ -14,12 +14,13 @@ Modification
 
 This project uses libopencm3 as the firmware library for stm32.
 So I modify the cpu related code with libopencm3.
+
 NOTE: libopencm3 has a function called `timer_reset()`, it conflicts with
  the same name function in contiki `sys/timer.c`, so I change all of the 
  `timer_reset()` in contiki into `contiki_timer_reset()`.
 
 ## Second, platform/stm32-gateway/
-This is the platform code for my gateway hardware. another folder called 
+This is the platform code for my gateway hardware. Another folder called 
 `stm32-mote` is the leaf node, which is used together with `examples/er-rest-example` 
 to test the function of the gateway. The two hardware is compatible except that 
 the gateway has enc28j60 but the mote doesn't.
