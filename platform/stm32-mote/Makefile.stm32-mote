@@ -1,0 +1,19 @@
+OPENOCD_PARAMS ?= -f interface/jlink.cfg -f target/stm32f1x.cfg
+
+CONTIKI_TARGET_DIRS = . dev dev/radio 
+						  
+# Master clock frequency
+MCK=72000000
+						  
+CONTIKI_TARGET_MAIN = contiki-main.c
+
+CONTIKI_SOURCEFILES += leds.c leds-arch.c \
+						$(rf231bb_src) \
+
+include $(CONTIKI)/cpu/arm/stm32f103/Makefile.stm32f103
+
+include $(CONTIKI)/platform/$(TARGET)/dev/radio/Makefile.rf231bb
+
+ifdef UIP_CONF_IPV6
+	CFLAGS += -DWITH_UIP6=1
+endif
