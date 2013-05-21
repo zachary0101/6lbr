@@ -6,6 +6,14 @@ This repository ports cetic/6lbr onto stm32f103 platform.
 The hardware uses stm32f103ret6 as the core control unit.
 Ethernet part uses enc28j60, and radio part uses at86rf231.
 
+Toolchain
+=====================
+This project uses [summon-arm-toolchain](https://github.com/esden/summon-arm-toolchain) as the cross compilation toolchain. It is a very simple build script for bare metal arm toolchain and it will automaticly intergate libopencm3 as part of the toolchain. 
+
+For the installation refer to [this](http://gnuarmeclipse.livius.net/wiki/Summon_ARM_toolchain_installation_on_Linux), or [my blog](http://zachary.42qu.com/10746872).
+
+The author now suggest using [gcc-arm-embedded](https://launchpad.net/gcc-arm-embedded) instead! But I am too lazy to change the toolchain. Maybe sometime later I will do it when I'm in good mood.
+
 Modification
 =====================
 # The modification mainly include three part:
