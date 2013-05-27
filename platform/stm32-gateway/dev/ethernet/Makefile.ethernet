@@ -1,1 +1,0 @@
-ethernet_src = enc28j60.c enc28j60-drv.c

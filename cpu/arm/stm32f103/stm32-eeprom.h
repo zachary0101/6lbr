@@ -7,9 +7,10 @@
 
 #ifndef EEPROM_H_
 #define EEPROM_H_
-
-#define PAGE_SIZE  (uint16_t)0x800  /* Page size = 2KByte */
-#define STM32_CONFIG_PAGE (0x8000000+470*1024) /* nvm page where conf will be stored */
+ /* Page size = 2KByte */
+#define PAGE_SIZE  (uint16_t)0x800
+/* nvm page where conf will be stored. something wrong here, if address greater than 479K it can't write. */
+#define STM32_CONFIG_PAGE (0x8000000+470*1024)
 #define STM32_CONFIG_VERSION 1
 #define STM32_CONFIG_MAGIC 0x32103E
 

@@ -19,7 +19,7 @@ void EE_Init(void)
 
 /*******************************************************************************
 * Function Name  : EE_BufferRead
-* Description    : Reads a block of data from the EEPROM. from 0x08000000+500K
+* Description    : Reads a block of data from the EEPROM. from 0x08000000+470K
 * Input          : -RomAddr
 *                  -NumByteToRead
 *                  -pRomData
