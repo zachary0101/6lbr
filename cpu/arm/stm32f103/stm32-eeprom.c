@@ -19,7 +19,7 @@ void EE_Init(void)
 
 /*******************************************************************************
 * Function Name  : EE_BufferRead
-* Description    : Reads a block of data from the EEPROM. from 0x08000000+320K
+* Description    : Reads a block of data from the EEPROM. from 0x08000000+500K
 * Input          : -RomAddr
 *                  -NumByteToRead
 *                  -pRomData
@@ -67,6 +67,8 @@ void EE_BufferWrite(u16 RomAddr,u16 NumByteToWrite,u8 *pRomData)
 
 	param_flashbase = STM32_CONFIG_PAGE;
 	startaddress=tempaddress = param_flashbase+RomAddr;
+    flash_unlock();
+    flash_clear_status_flags();
 	/*********************起始指针不在Flash页的开始端*********************/
 	if( (tempaddress%PAGE_SIZE) != 0)
 	{
@@ -247,4 +249,5 @@ void EE_BufferWrite(u16 RomAddr,u16 NumByteToWrite,u8 *pRomData)
 			}
 		}
 	}
+    flash_lock();
 }

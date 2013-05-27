@@ -140,8 +140,8 @@ cetic_6lbr_init(void)
   eth_mac64_addr.addr[0] = eth_mac_addr[0];
   eth_mac64_addr.addr[1] = eth_mac_addr[1];
   eth_mac64_addr.addr[2] = eth_mac_addr[2];
-  eth_mac64_addr.addr[3] = CETIC_6LBR_ETH_EXT_A;
-  eth_mac64_addr.addr[4] = CETIC_6LBR_ETH_EXT_B;
+  eth_mac64_addr.addr[3] = CETIC_6LBR_ETH_EXT_A;		//0xff
+  eth_mac64_addr.addr[4] = CETIC_6LBR_ETH_EXT_B;		//0xff
   eth_mac64_addr.addr[5] = eth_mac_addr[3];
   eth_mac64_addr.addr[6] = eth_mac_addr[4];
   eth_mac64_addr.addr[7] = eth_mac_addr[5];
@@ -207,7 +207,6 @@ PROCESS_THREAD(cetic_6lbr_process, ev, data)
 
   packet_filter_init();
   cetic_6lbr_init();
-
 #if WEBSERVER
   process_start(&webserver_nogui_process, NULL);
 #endif

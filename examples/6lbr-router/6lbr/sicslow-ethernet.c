@@ -69,7 +69,7 @@
 
 #include "cetic-6lbr.h"
 
-#define DEBUG DEBUG_PRINT
+#define DEBUG 0//DEBUG_PRINT
 #include "uip-debug.h"
 
 #ifndef UIP_CONF_AUTO_SUBSTITUTE_LOCAL_MAC_ADDR

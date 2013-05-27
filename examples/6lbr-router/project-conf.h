@@ -123,7 +123,12 @@
 
 #define WEBSERVER_CONF_CFS_URLCONV	0
 
-#define WEBSERVER_CONF_CFS_CONNS	1
+#define WEBSERVER_CONF_CFS_CONNS 2
+
+/* Reserve space for a file name (default is to not use file name) */
+#define WEBSERVER_CONF_CFS_PATHLEN 80
+
+#define WEBSERVER_EDITABLE_CONFIG 1
 
 /* Do not change lines below */
 #define CETIC_6LBR_VERSION		"1.0-0"

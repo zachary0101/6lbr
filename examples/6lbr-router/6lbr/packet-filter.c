@@ -12,7 +12,7 @@
 
 extern const rimeaddr_t rimeaddr_null;
 
-#define DEBUG 3//DEBUG_NONE //DEBUG_PRINT
+#define DEBUG 0//DEBUG_NONE //DEBUG_PRINT
 #include "net/uip-debug.h"
 
 static int eth_output(uip_lladdr_t * src, uip_lladdr_t * dest);

@@ -145,7 +145,7 @@ contiki_init(void)
 	
 	clock_init();
 	contiki_print_banner();
-	
+	stm32_flash_init();
 	/* rtimers needed for radio cycling */
 	rtimer_init();
 	/* Initialize process subsystem */

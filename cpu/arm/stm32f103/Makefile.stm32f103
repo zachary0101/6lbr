@@ -8,7 +8,8 @@ CONTIKI_CPU=$(CONTIKI_CPU_ARM)/stm32f103
 CONTIKI_CPU_DIRS = . 
 
 CONTIKI_SOURCEFILES += clock.c  newlib-syscalls.c debug-uart.c util.c \
-							rtimer-arch.c stm32-id-arch.c watchdog.c stm32-eeprom.c
+							rtimer-arch.c stm32-id-arch.c watchdog.c stm32-eeprom.c \
+							cfs-coffee.c cfs-coffee-arch.c
 
 THREADS =
 

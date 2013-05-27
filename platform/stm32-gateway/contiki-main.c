@@ -140,7 +140,7 @@ contiki_init(void)
 	leds_init();
 	gpio_init();
 	leds_on(LEDS_RED);
-	EE_Init();
+	stm32_flash_init();
 	clock_init();
 
 	/* Initialize process subsystem */
