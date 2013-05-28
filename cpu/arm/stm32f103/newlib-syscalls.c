@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include "models.h"
+#include <util.h>
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/f1/rtc.h>
@@ -140,23 +141,6 @@ int _lseek(int file, int ptr, int dir) {
  Malloc and related functions depend on this
  */
 
-//caddr_t _sbrk(int incr) {
-//	extern char __heap_start__; /* Defined by the linker */
-//	extern char __heap_end__; /* Defined by the linker */
-//	static char *heap_end = &__heap_start__;
-//	char *prev_heap_end;
-//
-//	prev_heap_end = heap_end;
-//	if (heap_end + incr > &__heap_end__) {
-//		printf("Heap full (requested %d, available %d)\n", incr,
-//				(int) (&__heap_end__ - heap_end));
-//		errno = ENOMEM;
-//		return (caddr_t) -1;
-//	}
-//
-//	heap_end += incr;
-//	return (caddr_t) prev_heap_end;
-//}
 caddr_t _sbrk(int incr)
 {
   extern char _ebss;
@@ -225,83 +209,51 @@ int _open(const char *name, int flags, int mode) {
 	return -1;
 }
 
-/*
-int _read(int file, char *ptr, int len) {
-    uint32_t counter = len;
-    if (file == 1 || file == 2) {                        // stdin from UARTx
-        while(counter-- > 0) {                          // Read the character to the buffer from UART
-			*ptr = usart_recv_blocking(STDIN_USART);
-			ptr++;
-        }
-        return len;
-    } else{
-    	return len;
-    }
-}
-*/
-//int _read(int file, char *ptr, int len)
-//{
-//  char c = 0x00;
-//  uint32_t counter = len;
-//  switch (file) {
-//  case STDIN_FILENO:
-//	  while(counter-- > 0) {                          // Read the character to the buffer from UART
-//		    uart_getchar(&c);
-//		    *ptr++ = c;
-//	  }
-//    return len;
-//    break;
-//  default:
-//    errno = EBADF;
-//    return -1;
-//  }
-//}
-/*
-int _write(int file, char *ptr, int len) {
-	int sent = -1;
-	if (file == 1 || file == 2) {
-		sent = dbg_send_bytes((const unsigned char*) ptr, len);
-	}
-	return sent;
-}*/
-//int
-//_write(int file, char *ptr, int len)
-//{
-//  int n;
-//  char c;
-//
-//  switch (file) {
-//  case STDOUT_FILENO:          /*stdout */
-//    for(n = 0; n < len; n++) {
-//        c = (uint8_t) * ptr++;
-//        uart_putchar(c);
-//    }
-//    break;
-//  case STDERR_FILENO:          /* stderr */
-//    for(n = 0; n < len; n++) {
-//        c = (uint8_t) * ptr++;
-//        uart_putchar(c);
-//    }
-//    break;
-//  default:
-//    errno = EBADF;
-//    return -1;
-//  }
-//  return len;
-//}
-/*int _write(int file, char *ptr, int len)
+
+int _read(int file, char *ptr, int len)
 {
-	int i;
+  char c = 0x00;
+  uint32_t counter = len;
+  switch (file) {
+  case STDIN_FILENO:
+	  while(counter-- > 0) {
+		    uart_getchar(&c);
+		    *ptr++ = c;
+	  }
+    return len;
+    break;
+  default:
+    errno = EBADF;
+    return -1;
+  }
+}
 
-	if (file == 1) {
-		for (i = 0; i < len; i++)
-			usart_send_blocking(DBG_UART, ptr[i]);
-		return i;
-	}
+int
+_write(int file, char *ptr, int len)
+{
+  int n;
+  char c;
 
-	errno = EIO;
-	return -1;
-}*/
+  switch (file) {
+  case STDOUT_FILENO:          /*stdout */
+    for(n = 0; n < len; n++) {
+        c = (uint8_t) * ptr++;
+        uart_putchar(c);
+    }
+    break;
+  case STDERR_FILENO:          /* stderr */
+    for(n = 0; n < len; n++) {
+        c = (uint8_t) * ptr++;
+        uart_putchar(c);
+    }
+    break;
+  default:
+    errno = EBADF;
+    return -1;
+  }
+  return len;
+}
+
 int fsync(int fd) {
 	if (fd == 1 || fd == 2) {
 		dbg_drain();
@@ -319,4 +271,4 @@ void _abort() {
 		;
 }
 
-const unsigned long bkpt_instr = 0xe1200070;
+//const unsigned long bkpt_instr = 0xe1200070;

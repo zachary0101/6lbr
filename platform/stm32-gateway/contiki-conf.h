@@ -12,7 +12,7 @@ typedef int32_t s32_t;
 typedef unsigned int clock_time_t;
 typedef unsigned int uip_stats_t;
 
-#define CLOCK_CONF_SECOND 100
+#define CLOCK_CONF_SECOND 1000
 #define CCIF
 #define CLIF
 #define AUTOSTART_ENABLE	1

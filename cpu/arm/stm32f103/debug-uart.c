@@ -2,101 +2,27 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <sys/energest.h>
+#include <lib/ringbuf.h>
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/nvic.h>
 #include "dev/models.h"
 
-
-typedef s32 ring_size_t;
-
-struct ring {
-	u8 *data;
-	ring_size_t size;
-	u32 begin;
-	u32 end;
-};
-
-#define RING_SIZE(RING)  ((RING)->size - 1)
-#define RING_DATA(RING)  (RING)->data
-#define RING_EMPTY(RING) ((RING)->begin == (RING)->end)
-
-static void ring_init(struct ring *ring, u8 *buf, ring_size_t size)
-{
-	ring->data = buf;
-	ring->size = size;
-	ring->begin = 0;
-	ring->end = 0;
-}
-
-static s32 ring_write_ch(struct ring *ring, u8 ch)
-{
-	if( ch == '\n')
-		ring_write_ch(ring,'\r');
-	if (((ring->end + 1) % ring->size) != ring->begin) {
-		ring->data[ring->end++] = ch;
-		ring->end %= ring->size;
-		return (u32)ch;
-	}
-
-	return -1;
-}
-
-static s32 ring_write(struct ring *ring, u8 *data, ring_size_t size)
-{
-	s32 i;
-
-	for (i = 0; i < size; i++) {
-		if (ring_write_ch(ring, data[i]) < 0)
-			return -i;
-	}
-
-	return i;
-}
-
-static s32 ring_read_ch(struct ring *ring, u8 *ch)
-{
-	s32 ret = -1;
-
-	if (ring->begin != ring->end) {
-		ret = ring->data[ring->begin++];
-		ring->begin %= ring->size;
-		if (ch)
-			*ch = ret;
-	}
-
-	return ret;
-}
-
-/* Not used!
-static s32 ring_read(struct ring *ring, u8 *data, ring_size_t size)
-{
-	s32 i;
-
-	for (i = 0; i < size; i++) {
-		if (ring_read_ch(ring, data + i) < 0)
-			return i;
-	}
-
-	return -i;
-}
-*/
-#define BUFFER_SIZE 1024
-
-struct ring output_ring;
-u8 output_ring_buffer[BUFFER_SIZE];
-
-int _write(int file, char *ptr, int len);
-
+static struct ringbuf ringbuf_tx, ringbuf_rx;
+static uint8_t buf_tx[128];
+static uint8_t buf_rx[128];
 
 void
 dbg_setup_uart_default(void)
 {
 	/* Initialize output ring buffer. */
-	ring_init(&output_ring, output_ring_buffer, BUFFER_SIZE);
-
+	ringbuf_init(&ringbuf_tx, buf_tx, sizeof (buf_tx));
+	/* Initialize input ring buffer. */
+	ringbuf_init(&ringbuf_rx, buf_rx, sizeof (buf_rx));
 	/* Enable the USART1 interrupt. */
 	nvic_enable_irq(NVIC_USART2_IRQ);
+	nvic_set_priority(NVIC_USART2_IRQ, 2);
 	gpio_set_mode(DBG_UART_GPIO, GPIO_MODE_OUTPUT_50_MHZ,
 			  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, DBG_UART_TX_PIN);
 
@@ -111,8 +37,7 @@ dbg_setup_uart_default(void)
 	usart_set_flow_control(DBG_UART, USART_FLOWCONTROL_NONE);
 	usart_set_mode(DBG_UART, USART_MODE_TX_RX);
 	/* Enable USART1 Receive interrupt. */
-	USART_CR1(DBG_UART) |= USART_CR1_RXNEIE;
-//	usart_enable_rx_interrupt(DBG_UART);
+	usart_enable_rx_interrupt(DBG_UART);
 	/* Finally enable the USART. */
 	usart_enable(DBG_UART);
 
@@ -122,49 +47,43 @@ dbg_setup_uart_default(void)
 	setvbuf(stderr, NULL, _IONBF, 0);
 }
 
+/**
+ *  \brief      Pushes a char into the output buffer
+ * This is blocking.  It used to return -ENOMEM, which is very nice for posix,
+ * but no-one was ever looking at it, so we simply truncated lots of writes
+ */
+int
+uart_putchar(char c)
+{
+	if (c == '\n')
+		uart_putchar('\r');
+	/* try, try try again! */
+	while (ringbuf_put(&ringbuf_tx, c) == 0);
+	usart_enable_tx_interrupt(DBG_UART);
+	return 0;
+}
+int
+uart_getchar(char *c)
+{
+	if (ringbuf_elements(&ringbuf_rx) > 0) {
+		c = ringbuf_get(&ringbuf_rx);
+	} else {
+		return -ENODATA;
+	}
+}
 unsigned int
 dbg_send_bytes(const unsigned char *seq, unsigned int len)
 {
 	unsigned int i=0;
 	while(seq && *seq!=0) {
 		if( i >= len) { break; }
-		if(*seq == '\n')
-		{
-			usart_send_blocking(DBG_UART, '\r');
-			usart_send_blocking(DBG_UART, '\n');
-		}
-		else
-		{
-			usart_send_blocking(DBG_UART, *seq);
-		}
+		uart_putchar(*seq);
 		seq++;
 		i++;
 	}
 	return i;
 }
-static unsigned char dbg_write_overrun = 0;
 
-void
-dbg_putchar(const char ch)
-{
-  if (dbg_write_overrun) {
-    if (dbg_send_bytes((const unsigned char*)"^",1) != 1) return;
-  }
-  dbg_write_overrun = 0;
-  if (dbg_send_bytes((const unsigned char*)&ch,1) != 1) {
-    dbg_write_overrun = 1;
-  }
-}
-
-void
-dbg_blocking_putchar(const char ch)
-{
-  if (dbg_write_overrun) {
-    while (dbg_send_bytes((const unsigned char*)"^",1) != 1);
-  }
-  dbg_write_overrun = 0;
-  while (dbg_send_bytes((const unsigned char*)&ch,1) != 1);
-}
 void
 dbg_drain()
 {
@@ -173,31 +92,20 @@ dbg_drain()
 
 void usart2_isr(void)
 {
-	/* Check if we were called because of RXNE. */
-	if (((USART_CR1(USART2) & USART_CR1_RXNEIE) != 0) &&
-	    ((USART_SR(USART2) & USART_SR_RXNE) != 0)) {
-
-		/* Retrieve the data from the peripheral. */
-		ring_write_ch(&output_ring, usart_recv(USART2));
-
-		/* Enable transmit interrupt so it sends back the data. */
-		USART_CR1(USART2) |= USART_CR1_TXEIE;
-	}
-
-	/* Check if we were called because of TXE. */
-	if (((USART_CR1(USART2) & USART_CR1_TXEIE) != 0) &&
-	    ((USART_SR(USART2) & USART_SR_TXE) != 0)) {
-
-		s32 data;
-
-		data = ring_read_ch(&output_ring, NULL);
-
-		if (data == -1) {
-			/* Disable the TXE interrupt, it's no longer needed. */
-			USART_CR1(USART2) &= ~USART_CR1_TXEIE;
+	ENERGEST_ON(ENERGEST_TYPE_IRQ);
+	char c;
+	if (usart_get_flag(DBG_UART, USART_SR_TXE)) {
+		if (ringbuf_elements(&ringbuf_tx) > 0) {
+			c = ringbuf_get(&ringbuf_tx);
+			usart_send(DBG_UART, (uint16_t) c);
 		} else {
-			/* Put data into the transmit register. */
-			usart_send(USART2, data);
+			usart_disable_tx_interrupt(DBG_UART);
 		}
 	}
+
+	if (usart_get_flag(DBG_UART, USART_SR_RXNE)) {
+		c = usart_recv(DBG_UART);
+		ringbuf_put(&ringbuf_rx, c);
+		}
+	ENERGEST_OFF(ENERGEST_TYPE_IRQ);
 }
